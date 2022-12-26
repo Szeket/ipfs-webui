@@ -7,9 +7,17 @@ import Button from '../../components/button/Button'
 import './IPFSSearchForm.css'
 import IPFSSearchLogoText from '../../icons/IPFSSearchLogoText'
 
+const IpfsSearchApi = require('ipfs-search-client')
+
+const api = new IpfsSearchApi.DefaultApi()
+const opts = {
+  type: 'any', // {{Type}} Resource type. Omit to return all types.
+  page: 0 // {{Integer}} Page number.
+}
+
 const ipfsSearchUrl = 'https://ipfs-search.com'
 
-const IPFSSearchForm = ({ t, onSearch, searchInput, doUpdateSearchInput }) => {
+const IPFSSearchForm = ({ t, searchInput, doUpdateSearchInput }) => {
   const onKeyDown = (evt) => {
     if (evt.key === 'Enter') {
       searchIPFS(searchInput)
@@ -18,8 +26,17 @@ const IPFSSearchForm = ({ t, onSearch, searchInput, doUpdateSearchInput }) => {
 
   const searchIPFS = (evt) => {
     evt.preventDefault()
-
     onSearch(searchInput)
+  }
+
+  const onSearch = (searchInput) => {
+    // Make a call to the IPFS search API with the searchInput as the query
+    api.searchGet(searchInput, opts).then((data) => {
+      // Update the searchResults state variable with the results of the search
+      console.log(data)
+    }, (error) => {
+      console.error(error)
+    })
   }
 
   const onChange = (evt) => {
@@ -36,7 +53,7 @@ const IPFSSearchForm = ({ t, onSearch, searchInput, doUpdateSearchInput }) => {
       return 'focus-outline'
     }
 
-    if (isValid) {
+    if (isValid()) {
       return 'b--green-muted focus-outline-green'
     } else {
       return 'b--red-muted focus-outline-red'
